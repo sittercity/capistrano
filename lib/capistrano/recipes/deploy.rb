@@ -475,7 +475,6 @@ namespace :deploy do
     current_release = current_dir.split('/')
     puts "Skipping Current Live Symlink: #{current_dir} => #{current_release[-1].to_i}"
     try_sudo "ls -1dt #{releases_path}/* | tail -n +#{count + 1} | grep -v #{current_release[-1].to_i} | #{try_sudo} xargs rm -rf"
-    abort
   end
 
   desc <<-DESC
