@@ -462,7 +462,9 @@ namespace :deploy do
   DESC
   task :cleanup, :except => { :no_release => true } do
     count = fetch(:keep_releases, 5).to_i
-    try_sudo "ls -1dt #{releases_path}/* | tail -n +#{count + 1} | #{try_sudo} xargs rm -rf"
+    current = try_sudo "find #{releases_path}/../ -maxdepth 1 -type l -exec ls -lad {} \; | awk '{print $11}' | xargs basename"
+    puts "Skipping Current Live Symlink: #{releases_path}/#{current}"
+    try_sudo "ls -1dt #{releases_path}/* | tail -n +#{count + 1} | grep -v #{current} | #{try_sudo} xargs rm -rf"
   end
 
   desc <<-DESC
