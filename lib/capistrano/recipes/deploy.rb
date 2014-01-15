@@ -461,8 +461,7 @@ namespace :deploy do
     for your environment, set the :use_sudo variable to false instead.
   DESC
   task :cleanup, :except => { :no_release => true } do
-    # count = fetch(:keep_releases, 5).to_i
-    count = 4
+    count = fetch(:keep_releases, 5).to_i
     cmd = "find #{deploy_to} -maxdepth 1 -type l | xargs ls -lad;"
     current_dir = ''
     try_sudo cmd do |channel, stream, data|
