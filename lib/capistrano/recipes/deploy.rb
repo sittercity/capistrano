@@ -461,10 +461,21 @@ namespace :deploy do
     for your environment, set the :use_sudo variable to false instead.
   DESC
   task :cleanup, :except => { :no_release => true } do
-    count = fetch(:keep_releases, 5).to_i
-    current = try_sudo "find #{releases_path}/../ -maxdepth 1 -type l -exec ls -lad {} \; | awk '{print $11}' | xargs basename"
-    puts "Skipping Current Live Symlink: #{releases_path}/#{current}"
-    try_sudo "ls -1dt #{releases_path}/* | tail -n +#{count + 1} | grep -v #{current} | #{try_sudo} xargs rm -rf"
+    # count = fetch(:keep_releases, 5).to_i
+    count = 4
+    cmd = "find #{deploy_to} -maxdepth 1 -type l | xargs ls -lad;"
+    current_dir = ''
+    try_sudo cmd do |channel, stream, data|
+      if stream == :out
+        current_dir = data
+      end
+      break if stream == :err 
+    end
+    
+    current_release = current_dir.split('/')
+    puts "Skipping Current Live Symlink: #{current_dir} => #{current_release[-1].to_i}"
+    try_sudo "ls -1dt #{releases_path}/* | tail -n +#{count + 1} | grep -v #{current_release[-1].to_i} | #{try_sudo} xargs rm -rf"
+    abort
   end
 
   desc <<-DESC
